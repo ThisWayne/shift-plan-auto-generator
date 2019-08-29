@@ -37,11 +37,6 @@ class ShiftPlan {
         }
         return true;
       });
-      if (candidates.length < 3) {
-        this.printRoster();
-        console.log(date);
-        throw "oops";
-      }
       const shiftTypes = this.monthSetting.getShifts(date);
       shiftTypes.forEach(shiftType => {
         let shiftTypeCandidates = candidates;
@@ -60,10 +55,11 @@ class ShiftPlan {
 
   getLowestShiftTypeCountCandidates(candidates, shiftType) {
     let result = [];
-    const minCount = Number.MAX_VALUE;
+    let minCount = Number.MAX_VALUE;
     candidates.filter(c => c.role !== Role.MG).forEach(candidate => {
       if (minCount > candidate.shiftTypeCount[shiftType]) {
         result = [candidate];
+        minCount = candidate.shiftTypeCount[shiftType];
       } else {
         result.push(candidate);
       }
