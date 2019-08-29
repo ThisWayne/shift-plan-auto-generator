@@ -1,0 +1,17 @@
+.roster-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.roster-table>tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.roster-table>tr>td:nth-last-child(6), .roster-table>tr>th:nth-last-child(6) {
+  border-left: 2px solid #000000;
+}
+
+.roster-table td, .roster-table th {
+  border: 1px solid #ddd;
+  padding: 5px;
+}

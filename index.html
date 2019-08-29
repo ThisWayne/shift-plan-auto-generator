@@ -2,11 +2,26 @@
 <html>
 
 <head>
-  <script src="index.js"></script>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
-  <table id="roster"></table>
+  <table id="roster" class="roster-table"></table>
+  <script src="index.js"></script>
+  <script>
+    const monthSetting = new MonthSetting({ beginDay: 7, days: 31, daysOff: 9, holidayOffDates: [1] });
+    const employees = [];
+    employees.push(new Employee({ name: 'A', planDayOffDates: [2, 9, 16, 23, 30], role: Role.MG }));
+    employees.push(new Employee({ name: 'B', planDayOffDates: [], role: Role.FT }));
+    employees.push(new Employee({ name: 'C', planDayOffDates: [], role: Role.FT }));
+    employees.push(new Employee({ name: 'D', planDayOffDates: [], role: Role.FT }));
+    employees.push(new Employee({ name: 'E', planDayOffDates: [], role: Role.PT }));
+    employees.push(new Employee({ name: 'F', planDayOffDates: [], role: Role.PT }));
+
+    const shiftPlan = new ShiftPlan(monthSetting, employees);
+    shiftPlan.start();
+    shiftPlan.printRoster();
+  </script>
 </body>
 
 </html>

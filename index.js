@@ -1,15 +1,25 @@
 const Role = {
-  PT: Symbol('part-time'),
-  FT: Symbol('full-time'),
-  MG: Symbol('manager'),
+  PT: '兼',
+  FT: '正',
+  MG: '店',
 }
 
 const ShiftType = {
-  MoringShift: Symbol("morning shift"),
-  NightShift: Symbol("night shift"),
-  NightShiftOvertime: Symbol("night shift overtime"),
-  FullDay: Symbol("full day"),
-  DayOff: Symbol("day off")
+  MoringShift: "1",
+  NightShift: "2",
+  NightShiftOvertime: "2+",
+  FullDay: "全",
+  DayOff: "X"
+}
+
+const Day = {
+  1: "一",
+  2: "二",
+  3: "三",
+  4: "四",
+  5: "五",
+  6: "六",
+  0: "日",
 }
 
 class ShiftPlan {
@@ -27,15 +37,16 @@ class ShiftPlan {
         }
         return true;
       });
-      if (candidates.length < 4) {
+      if (candidates.length < 3) {
         this.printRoster();
+        console.log(date);
         throw "oops";
       }
       const shiftTypes = this.monthSetting.getShifts(date);
       shiftTypes.forEach(shiftType => {
         let shiftTypeCandidates = candidates;
-        if (shiftType === shiftType.FullDay || shiftType === shiftType.NightShiftOvertime) {
-          shiftTypeCandidates = getLowestShiftTypeCountCandidates(candidates, shiftType);
+        if (shiftType === ShiftType.FullDay || shiftType === ShiftType.NightShiftOvertime) {
+          shiftTypeCandidates = this.getLowestShiftTypeCountCandidates(shiftTypeCandidates, shiftType);
         }
         const chosen = this.getRandomOneFromItems(shiftTypeCandidates);
         chosen.setShift(date, shiftType);
@@ -47,24 +58,10 @@ class ShiftPlan {
     }
   }
 
-  printRoster() {
-    const out = this.employees.map(employee => {
-      const rowData = { name: employee.name };
-      for (let date = 1; date <= this.monthSetting.days; date++) {
-        rowData[date] = employee.shifts[date - 1].toString();
-      }
-      for (let shiftType in ShiftType) {
-        rowData[shiftType] = employee.shiftTypeCount[ShiftType[shiftType]];
-      }
-      return rowData;
-    });
-    console.table(out);
-  }
-
   getLowestShiftTypeCountCandidates(candidates, shiftType) {
-    const result = [];
+    let result = [];
     const minCount = Number.MAX_VALUE;
-    candidates.forEach(candidate => {
+    candidates.filter(c => c.role !== Role.MG).forEach(candidate => {
       if (minCount > candidate.shiftTypeCount[shiftType]) {
         result = [candidate];
       } else {
@@ -76,6 +73,73 @@ class ShiftPlan {
 
   getRandomOneFromItems(items) {
     return items[Math.floor(Math.random() * items.length)];
+  }
+
+  printRoster() {
+    const tableRows = this.employees.map(employee => {
+      const row = { name: employee.name };
+      for (let date = 1; date <= this.monthSetting.days; date++) {
+        row[date] = employee.shifts[date - 1];
+      }
+      for (let shiftType in ShiftType) {
+        row[shiftType] = employee.shiftTypeCount[ShiftType[shiftType]];
+      }
+      row.role = employee.role;
+      return row;
+    });
+
+    const docFrag = new DocumentFragment();
+
+    this.populateRosterTableHeader(docFrag);
+
+    tableRows.forEach(row => {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.innerText = row.name;
+      tr.appendChild(td);
+
+      for (let key in row) {
+        if (key === 'name') continue;
+        const td = document.createElement("td");
+        if (row.role === Role.MG && (key === 'NightShiftOvertime' || key === 'FullDay')) {
+          td.innerText = 'X';
+        } else {
+          td.innerText = row[key];
+        }
+        tr.appendChild(td);
+      }
+      docFrag.appendChild(tr);
+    });
+    const tableDom = document.querySelector("#roster");
+    tableDom.appendChild(docFrag);
+  }
+
+  populateRosterTableHeader(docFrag) {
+    const dateTr = document.createElement("tr");
+    const dayTr = document.createElement("tr");
+    dateTr.appendChild(document.createElement("th"));
+    dayTr.appendChild(document.createElement("th"));
+    for (let date = 1; date <= this.monthSetting.days; date++) {
+      const dateTh = document.createElement("th");
+      dateTh.innerText = date;
+      dateTr.appendChild(dateTh);
+
+      const dayTh = document.createElement("th");
+      dayTh.innerText = this.monthSetting.getDay(date);
+      dayTr.appendChild(dayTh);
+    }
+    for (let shiftType in ShiftType) {
+      const th = document.createElement("th");
+      th.innerText = ShiftType[shiftType];
+      dayTr.appendChild(th);
+      dateTr.appendChild(document.createElement("th"));
+    }
+    const th = document.createElement("th");
+    th.innerText = "職";
+    dayTr.appendChild(th);
+    dateTr.appendChild(document.createElement("th"));
+    docFrag.appendChild(dateTr);
+    docFrag.appendChild(dayTr);
   }
 }
 
@@ -98,6 +162,11 @@ class MonthSetting {
   isWeekend(date) {
     const day = (this.beginDay + date - 1) % 7;
     return day === 0 || day === 6;
+  }
+
+  getDay(date) {
+    const day = (this.beginDay + date - 1) % 7;
+    return Day[day];
   }
 }
 
@@ -132,16 +201,3 @@ class Employee {
     this.shiftTypeCount[shiftType] += 1;
   }
 }
-
-const monthSetting = new MonthSetting({ beginDay: 7, days: 31, daysOff: 9, holidayOffDates: [1] });
-const employees = [];
-employees.push(new Employee({ name: 'A', planDayOffDates: [], role: Role.MG }));
-employees.push(new Employee({ name: 'B', planDayOffDates: [], role: Role.FT }));
-employees.push(new Employee({ name: 'C', planDayOffDates: [], role: Role.FT }));
-employees.push(new Employee({ name: 'D', planDayOffDates: [], role: Role.FT }));
-employees.push(new Employee({ name: 'E', planDayOffDates: [], role: Role.PT }));
-employees.push(new Employee({ name: 'F', planDayOffDates: [], role: Role.PT }));
-
-const shiftPlan = new ShiftPlan(monthSetting, employees);
-shiftPlan.start();
-shiftPlan.printRoster();
