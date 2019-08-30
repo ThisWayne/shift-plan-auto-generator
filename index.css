@@ -15,3 +15,8 @@
   border: 1px solid #ddd;
   padding: 5px;
 }
+
+.roster-table thead, .roster-table tbody {
+  border: 1px solid #ddd;
+  padding: 5px;
+}

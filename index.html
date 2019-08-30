@@ -3,20 +3,20 @@
 
 <head>
   <link rel="stylesheet" href="index.css?v=0.5">
+  <script src="index.js?v=0.5"></script>
 </head>
 
 <body>
   <table id="roster" class="roster-table"></table>
-  <script src="index.js?v=0.5"></script>
   <script>
     const monthSetting = new MonthSetting({ beginDay: 7, days: 31, daysOff: 9, holidayOffDates: [1] });
     const employees = [];
-    employees.push(new Employee({ name: 'A', planDayOffDates: [2, 9, 16, 23, 30], role: Role.MG }));
-    employees.push(new Employee({ name: 'B', planDayOffDates: [], role: Role.FT }));
-    employees.push(new Employee({ name: 'C', planDayOffDates: [], role: Role.FT }));
-    employees.push(new Employee({ name: 'D', planDayOffDates: [], role: Role.FT }));
-    employees.push(new Employee({ name: 'E', planDayOffDates: [], role: Role.PT }));
-    employees.push(new Employee({ name: 'F', planDayOffDates: [], role: Role.PT }));
+    employees.push(new Employee({ index: 0, name: '清', planDayOffDates: [3, 10, 15, 17, 24], role: Role.MG }));
+    employees.push(new Employee({ index: 1, name: '慈', planDayOffDates: [2, 6, 12, 13, 16, 22, 23, 29, 30], role: Role.FT }));
+    employees.push(new Employee({ index: 2, name: '屏', planDayOffDates: [1, 7], role: Role.FT }));
+    employees.push(new Employee({ index: 3, name: '喬', planDayOffDates: [1, 7, 8], role: Role.FT }));
+    employees.push(new Employee({ index: 4, name: '洛', planDayOffDates: [2, 13, 14], role: Role.PT }));
+    employees.push(new Employee({ index: 5, name: '新', planDayOffDates: [], role: Role.PT }));
 
     const shiftPlan = new ShiftPlan(monthSetting, employees);
     shiftPlan.start();
