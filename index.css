@@ -3,7 +3,7 @@
   width: 100%;
 }
 
-.roster-table>tr:nth-child(even) {
+.roster-table>tbody>tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
@@ -19,4 +19,12 @@
 .roster-table thead, .roster-table tbody {
   border: 1px solid #ddd;
   padding: 5px;
+}
+
+.error {
+  background-color: red;
+}
+
+.orig-day-off {
+  background-color: greenyellow;
 }
