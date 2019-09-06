@@ -66,19 +66,23 @@ class ShiftPlan {
   _preAddDayOff(dayOffTable, monthSetting, employees) {
     let beginDateOfWeekOfMonth = monthSetting.beginDay === 1 ? 1 : 1 + (7 - monthSetting.beginDay + 1);
     for (let beginDateOfWeek = beginDateOfWeekOfMonth; beginDateOfWeek <= monthSetting.days + monthSetting.nextMonthFirstWeekDays; beginDateOfWeek += 7) {
-      employees.forEach(emp => {
-        let count = 0;
-        for (let day = 0; day < 3; day++) {
-          if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count++;
-        }
-        if (count >= 2 && beginDateOfWeek + 7 <= 1 + monthSetting.lastMonthLastWeekDays + monthSetting.days + monthSetting.nextMonthFirstWeekDays) this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek + 7, ShiftType.DayOff);
-        count = 0;
-        for (let day = 4; day < 7; day++) {
-          if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count++;
-        }
-        if (count >= 2 && beginDateOfWeek - 1 > 0) this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek - 1, ShiftType.DayOff);
-      });
+      this._preAddDayOffForWeek(dayOffTable, monthSetting, employees, beginDateOfWeek);
     }
+  }
+
+  _preAddDayOffForWeek(dayOffTable, monthSetting, employees, beginDateOfWeek) {
+    employees.forEach(emp => {
+      let count = 0;
+      for (let day = 0; day < 3; day++) {
+        if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count++;
+      }
+      if (count >= 2 && beginDateOfWeek + 7 <= 1 + monthSetting.lastMonthLastWeekDays + monthSetting.days + monthSetting.nextMonthFirstWeekDays) this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek + 7, ShiftType.DayOff);
+      count = 0;
+      for (let day = 4; day < 7; day++) {
+        if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count++;
+      }
+      if (count >= 2 && beginDateOfWeek - 1 > 0) this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek - 1, ShiftType.DayOff);
+    });
   }
 
   _planAllDayOff(dayOffTable, monthSetting, employees) {
@@ -104,6 +108,8 @@ class ShiftPlan {
       while (planJobQueue.length !== 0) {
         this._processPlanJob(dayOffTable, monthSetting, planJobQueue.pop());
       }
+
+      this._preAddDayOffForWeek(dayOffTable, monthSetting, employees, firstDateOfThisWeek);
 
       this._processPlanJob(dayOffTable, monthSetting, { empIndex: employees.find(emp => emp.role === Role.MG).index, firstDateOfThisWeek });
     }
@@ -230,6 +236,7 @@ class ShiftPlan {
             if (this.monthSetting.getDay(nextWeekFirstDayOff) !== Day[2]) candidateDates.push(thisWeekDayOffDate + 5);
           }
           secCandidateDates = [thisWeekDayOffDate + 1];
+          if (beforeSeq !== 1) secCandidateDates.push(thisWeekDayOffDate - 1);
         }
       } else if (thisWeakDayOffDay === Day[3]) {
         if (beforeSeq > MaxShiftSeq) {
