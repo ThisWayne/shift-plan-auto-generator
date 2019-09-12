@@ -1,0 +1,22 @@
+@import "../app/app.scss";
+
+.employee-container {
+  height: 100%;
+}
+
+.employee-flex-container {
+  @extend .flex-container-column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow-x: auto;
+}
+
+.employee-flex-container .employee-flex-item {
+  @extend .flex-item-origin-size;
+  width: 250px;
+  padding: 0px 5px 0px 0px;
+}
+
+.add-employee-btn{
+  width: 100px;
+}

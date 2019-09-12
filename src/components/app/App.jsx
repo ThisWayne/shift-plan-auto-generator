@@ -1,8 +1,9 @@
 import React from 'react';
-import './app.css';
-import { EmployeeModel, Role } from '../shift-plan/index';
-import Employee from './employee/employee';
-import YearMonth from './year-month/year-month';
+import './app.scss';
+import { EmployeeModel, Role } from '../../shift-plan/index';
+import Employee from '../employee/employee';
+import YearMonth from '../year-month/year-month';
+import PlanDayOffTable from '../plan-day-off-table/plan-day-off-table';
 
 class App extends React.Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class App extends React.Component {
     this.state = {
       selectedYear: nextMonth === 0 ? thisYear + 1 : thisYear,
       selectedMonth: (thisMonth + 1) % 12,
+      monthData: null,
       employeeModels: [],
       employeeIndexCounter: 0,
     };
@@ -62,26 +64,50 @@ class App extends React.Component {
       handleAddEmployeeBtnClick, handleEmpDataChange, handleEmpDataDelete,
       handleYearSelectChange, handleMonthSelectChange,
     } = this;
-    const { selectedYear, selectedMonth, employeeModels } = this.state;
+    const {
+      selectedYear, selectedMonth, employeeModels, monthData,
+    } = this.state;
 
     return (
       <div className="app">
         <div id="step1" className="step">
-          <h2>1. 資料填寫</h2>
-          <div>
-            <YearMonth
-              {...{
-                yearOptions, selectedYear, selectedMonth, handleYearSelectChange, handleMonthSelectChange,
+          <h2 className="step-header">1. 資料填寫</h2>
+          <div className="step-body flex-container-column">
+            <div className="flex-item-origin-size">
+              <YearMonth
+                {...{
+                  yearOptions, selectedYear, selectedMonth, handleYearSelectChange, handleMonthSelectChange,
+                }}
+              />
+            </div>
+            <div className="flex-item-expand-1">
+              <Employee {...{
+                employeeModels, roleOptions, handleAddEmployeeBtnClick, handleEmpDataChange, handleEmpDataDelete,
               }}
-            />
-            <Employee {...{
-              employeeModels, roleOptions, handleAddEmployeeBtnClick, handleEmpDataChange, handleEmpDataDelete,
-            }}
-            />
+              />
+            </div>
+          </div>
+          <div className="step-footer">
+            <a href="#step2" className="float-right">下一步</a>
           </div>
         </div>
-        <div id="step2" className="step">test</div>
-        <div id="step3" className="step">test</div>
+        <div id="step2" className="step">
+          <h2 className="step-header">2. 畫休</h2>
+          <div className="step-body">
+            <PlanDayOffTable {...{ monthData }} />
+          </div>
+          <div className="step-footer float-right">
+            <a href="#step3" className="float-right">下一步</a>
+            <a href="#step1" className="float-right">上一步</a>
+          </div>
+        </div>
+        <div id="step3" className="step">
+          <h2 className="step-header">3. 自動排休</h2>
+          <div className="step-body" />
+          <div className="step-footer float-right">
+            <a href="#step2" className="float-right">上一步</a>
+          </div>
+        </div>
       </div>
     );
   }

@@ -109,23 +109,23 @@ export default class ShiftPlan {
     empNeedToPlan
       .filter((emp) => this._isNextWeekDayOffCountGreaterThan2(emp.index, firstDateOfThisWeek)
         && this._getThisWeekDayOffCount(dayOffTable, emp.index, firstDateOfThisWeek) === 1).forEach((emp) => {
-        planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
-      });
+          planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
+        });
     empNeedToPlan
       .filter((emp) => this._isNextWeekDayOffCountGreaterThan2(emp.index, firstDateOfThisWeek)
         && this._getThisWeekDayOffCount(dayOffTable, emp.index, firstDateOfThisWeek) === 0).forEach((emp) => {
-        planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
-      });
+          planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
+        });
     empNeedToPlan
       .filter((emp) => !this._isNextWeekDayOffCountGreaterThan2(emp.index, firstDateOfThisWeek)
         && this._getThisWeekDayOffCount(dayOffTable, emp.index, firstDateOfThisWeek) === 1).forEach((emp) => {
-        planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
-      });
+          planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
+        });
     empNeedToPlan
       .filter((emp) => !this._isNextWeekDayOffCountGreaterThan2(emp.index, firstDateOfThisWeek)
         && this._getThisWeekDayOffCount(dayOffTable, emp.index, firstDateOfThisWeek) === 0).forEach((emp) => {
-        planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
-      });
+          planJobQueue.unshift({ empIndex: emp.index, firstDateOfThisWeek });
+        });
   }
 
   _isThisWeekDayOffCountGreaterEqualThan2(dayOffTable, empIndex, firstDateOfThisWeek) {
@@ -384,7 +384,7 @@ export default class ShiftPlan {
     document.querySelector('#roster').appendChild(docFrag);
   }
 
-  _populateRosterTableHeader(docFrag, monthSetting, rowLength, headerName) {
+  _populateRosterTableHeader(docFrag, monthData, rowLength, headerName) {
     const thead = document.createElement('thead');
     const tr = document.createElement('tr');
     const td = document.createElement('td');

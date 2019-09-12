@@ -1,0 +1,34 @@
+.app {
+  height: 100%;
+}
+
+.flex-container-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.flex-item-origin-size {
+  flex: 0 0;
+}
+
+.flex-item-expand-1 {
+  flex: 1 1;
+  height: 100%;
+}
+
+.step {
+  @extend .flex-container-column;
+}
+
+.step .step-header, .step .step-footer {
+  @extend .flex-item-origin-size;
+}
+
+.step .step-body {
+  @extend .flex-item-expand-1;
+}
+
+.float-right {
+  float: right;
+}
