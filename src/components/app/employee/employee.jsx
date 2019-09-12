@@ -1,4 +1,5 @@
 import React from 'react';
+import './employee.css';
 
 export default function Employee(props) {
   const {
@@ -6,7 +7,7 @@ export default function Employee(props) {
   } = props;
   const roleSelectOptions = roleOptions.map((role) => <option key={role}>{role}</option>);
   const empList = employeeModels.map((emp) => (
-    <div key={emp.index}>
+    <div className="employee-flex-item" key={emp.index}>
       <input value={emp.name} name="name" data-emp-index={emp.index} onChange={handleEmpDataChange} />
       <select value={emp.role} name="role" data-emp-index={emp.index} onChange={handleEmpDataChange}>
         {roleSelectOptions}
@@ -19,7 +20,9 @@ export default function Employee(props) {
     <div>
       <h3>員工資料</h3>
       <button type="button" onClick={handleAddEmployeeBtnClick}>新增員工資料</button>
-      {empList}
+      <div className="employee-flex-container">
+        {empList}
+      </div>
     </div>
   );
 }

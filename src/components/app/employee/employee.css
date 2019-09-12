@@ -1,0 +1,14 @@
+.employee-flex-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: start;
+  height: 300px;
+  overflow-x: auto;
+}
+
+.employee-flex-container .employee-flex-item {
+  flex: 0 0;
+  width: 250px;
+  padding: 0px 5px 0px 0px;
+}
