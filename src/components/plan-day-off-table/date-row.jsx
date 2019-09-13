@@ -5,16 +5,16 @@ export default class DateRow extends PureComponent {
   render() {
     const { monthData } = this.props;
     const dateHeaders = [];
-    dateHeaders.push(<th />);
+    dateHeaders.push(<th key="pre padding" />);
     const firstDateOfTable = 1 + monthData.lastMonthDays - monthData.lastMonthLastWeekDays;
     for (let date = firstDateOfTable; date <= monthData.lastMonthDays; date += 1) {
-      dateHeaders.push(<th>{date}</th>);
+      dateHeaders.push(<th key={`last${date}`}>{date}</th>);
     }
     for (let date = 1; date <= monthData.days; date += 1) {
-      dateHeaders.push(<th>{date}</th>);
+      dateHeaders.push(<th key={`this${date}`}>{date}</th>);
     }
     for (let date = 1; date <= monthData.nextMonthFirstWeekDays; date += 1) {
-      dateHeaders.push(<th>{date}</th>);
+      dateHeaders.push(<th key={`next${date}`}>{date}</th>);
     }
     return (
       <tr>

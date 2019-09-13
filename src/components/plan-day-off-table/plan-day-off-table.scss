@@ -1,0 +1,24 @@
+.roster-table {
+  border-collapse: collapse;
+  width: 100%;
+  >tbody>tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  thead, tbody {
+    border: 1px solid #ddd;
+    padding: 5px;
+  }
+  td, th {
+    border: 1px solid #ddd;
+    padding: 5px;
+    white-space: nowrap;
+  }
+}
+
+.error {
+  background-color: red;
+}
+
+.orig-day-off {
+  background-color: greenyellow;
+}

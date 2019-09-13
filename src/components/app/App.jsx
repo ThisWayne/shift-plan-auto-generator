@@ -1,11 +1,11 @@
 import React from 'react';
 import './app.scss';
-import { EmployeeModel, Role } from '../../shift-plan/index';
+import { EmployeeModel, Role, MonthData } from '../../shift-plan/index';
 import Employee from '../employee/employee';
 import YearMonth from '../year-month/year-month';
 import PlanDayOffTable from '../plan-day-off-table/plan-day-off-table';
 
-class App extends React.Component {
+export default class App extends React.Component {
   constructor(props) {
     super(props);
     const date = new Date();
@@ -58,11 +58,18 @@ class App extends React.Component {
     });
   }
 
+  handleGoToStep2Click = () => {
+    this.setState((state) => {
+      const { selectedYear: year, selectedMonth: month } = state;
+      return { monthData: new MonthData({ year, month }) };
+    });
+  }
+
   render() {
     const {
       yearOptions, roleOptions,
       handleAddEmployeeBtnClick, handleEmpDataChange, handleEmpDataDelete,
-      handleYearSelectChange, handleMonthSelectChange,
+      handleYearSelectChange, handleMonthSelectChange, handleGoToStep2Click,
     } = this;
     const {
       selectedYear, selectedMonth, employeeModels, monthData,
@@ -88,13 +95,13 @@ class App extends React.Component {
             </div>
           </div>
           <div className="step-footer">
-            <a href="#step2" className="float-right">下一步</a>
+            <a href="#step2" className="float-right" onClick={handleGoToStep2Click}>下一步</a>
           </div>
         </div>
         <div id="step2" className="step">
           <h2 className="step-header">2. 畫休</h2>
           <div className="step-body">
-            <PlanDayOffTable {...{ monthData }} />
+            <PlanDayOffTable {...{ monthData, employeeModels }} />
           </div>
           <div className="step-footer float-right">
             <a href="#step3" className="float-right">下一步</a>
@@ -112,5 +119,3 @@ class App extends React.Component {
     );
   }
 }
-
-export default App;

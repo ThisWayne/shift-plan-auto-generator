@@ -1,12 +1,11 @@
 import { Day, ShiftType } from './constants';
 
 export default class MonthData {
-  constructor({
-    beginDay, thisMonthdays, lastMonthDays, holidayOffDates,
-  }) {
-    this.beginDay = beginDay;
-    this.days = thisMonthdays;
-    this.lastMonthDays = lastMonthDays;
+  constructor({ year, month, holidayOffDates = [] }) {
+    this.dateObj = new Date(year, month);
+    this.beginDay = this.dateObj.getDay();
+    this.days = new Date(year, month + 1, 0).getDate();
+    this.lastMonthDays = new Date(year, month, 0).getDate();
     this.holidayOffDates = holidayOffDates;
     this.nextMonthFirstWeekDays = this.getNextMonthFirstWeekDays();
     this.lastMonthLastWeekDays = this.getLastMonthLastWeekDays();
