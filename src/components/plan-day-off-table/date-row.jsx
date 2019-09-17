@@ -8,25 +8,13 @@ export default class DateRow extends PureComponent {
     dateHeaders.push(<th key="pre padding" />);
     const firstDateOfTable = 1 + monthData.lastMonthDays - monthData.lastMonthLastWeekDays;
     for (let date = firstDateOfTable; date <= monthData.lastMonthDays; date += 1) {
-      if (date === monthData.lastMonthDays) {
-        dateHeaders.push(<th key={`last${date}`} className="endOfLastMonth">{date}</th>);
-      } else {
-        dateHeaders.push(<th key={`last${date}`}>{date}</th>);
-      }
+      dateHeaders.push(<th key={`last${date}`} className="last-month">{date}</th>);
     }
     for (let date = 1; date <= monthData.days; date += 1) {
-      if (date === monthData.days) {
-        dateHeaders.push(<th key={`this${date}`} className="endOfThisMonth">{date}</th>);
-      } else {
-        dateHeaders.push(<th key={`this${date}`}>{date}</th>);
-      }
+      dateHeaders.push(<th key={`this${date}`} className="this-month">{date}</th>);
     }
     for (let date = 1; date <= monthData.nextMonthFirstWeekDays; date += 1) {
-      if (date === monthData.nextMonthFirstWeekDays) {
-        dateHeaders.push(<th key={`next${date}`} className="endOfNextMonth">{date}</th>);
-      } else {
-        dateHeaders.push(<th key={`next${date}`}>{date}</th>);
-      }
+      dateHeaders.push(<th key={`next${date}`} className="next-month">{date}</th>);
     }
     return (
       <tr className="date-row">

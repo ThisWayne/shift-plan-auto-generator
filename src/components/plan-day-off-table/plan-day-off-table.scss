@@ -23,16 +23,17 @@ table.roster-table {
   }
   .date-row, .day-row {
     >th {
-      font-weight: lighter;
-    }
-    >th.endOfLastMonth ~ th {
       font-weight: bold;
     }
-    >th.endOfThisMonth ~ th {
+    >th.last-month {
       font-weight: lighter;
     }
-    >th.endOfNextMonth {
-      border-right: 2px solid #000000;
+    >th.this-month {
+      font-weight: bold;
+    }
+    >th.next-month {
+      font-weight: lighter;
+      // border-left: 2px solid #000000;
     }
   }
 }
