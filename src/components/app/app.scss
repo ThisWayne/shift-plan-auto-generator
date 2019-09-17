@@ -33,3 +33,20 @@
 .float-right {
   float: right;
 }
+
+.next-step, .last-step {
+  @extend .float-right;
+  padding: .75rem 1.25rem;
+  margin-right: .25rem;
+  margin-bottom: .25rem;
+  font-weight: bold;
+  color: white;
+  background-color: #2196F3;
+  border-radius: .25rem;
+  text-decoration: none;
+}
+
+.last-step {
+  color: #1b1e21;
+  background-color: #c6c8ca;
+}

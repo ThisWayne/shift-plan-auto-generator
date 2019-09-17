@@ -126,7 +126,7 @@ export default class App extends React.Component {
             </div>
           </div>
           <div className="step-footer">
-            <a href="#step2" className="float-right">下一步</a>
+            <a href="#step2" className="next-step">下一步</a>
           </div>
         </div>
         <div id="step2" className="step">
@@ -138,15 +138,15 @@ export default class App extends React.Component {
             />
           </div>
           <div className="step-footer float-right">
-            <a href="#step3" className="float-right">下一步</a>
-            <a href="#step1" className="float-right">上一步</a>
+            <a href="#step3" className="next-step">下一步</a>
+            <a href="#step1" className="last-step">上一步</a>
           </div>
         </div>
         <div id="step3" className="step">
           <h2 className="step-header">3. 自動排休</h2>
           <div className="step-body" />
           <div className="step-footer float-right">
-            <a href="#step2" className="float-right">上一步</a>
+            <a href="#step2" className="last-step">上一步</a>
           </div>
         </div>
       </div>
