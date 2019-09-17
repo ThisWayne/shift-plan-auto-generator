@@ -2,10 +2,10 @@ import { ShiftType, Role, MaxShiftSeq } from './constants';
 
 export default class EmployeeModel {
   constructor({
-    index, name, role, planDayOffDates, maxShiftSeq = MaxShiftSeq,
+    uniqueId, index, name, role, planDayOffDates = [], maxShiftSeq = MaxShiftSeq,
   }) {
     Object.assign(this, {
-      index, name, role, planDayOffDates, maxShiftSeq,
+      uniqueId, index, name, role, planDayOffDates, maxShiftSeq,
     });
     this.shiftSeq = 0;
     this.shifts = [];

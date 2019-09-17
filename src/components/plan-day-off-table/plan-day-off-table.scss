@@ -11,6 +11,16 @@ table.roster-table {
   >tbody>tr:nth-child(even) {
     background-color: #f2f2f2;
   }
+  td.buttonCell{
+    padding: 0px;
+    height: 32px;
+    width: 32px;
+    button{
+      height: 100%;
+      width: 100%;
+      background-color: transparent;
+    }
+  }
   .date-row, .day-row {
     >th {
       font-weight: lighter;

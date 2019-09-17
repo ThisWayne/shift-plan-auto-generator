@@ -3,16 +3,19 @@ import {
 } from './constants';
 
 export default class ShiftPlan {
-  constructor(monthSetting, employees) {
-    Object.assign(this, { monthSetting, employees });
+  constructor(monthSetting, employeeModels) {
+    Object.assign(this, { monthSetting, employeeModels });
     this.rowLength = 1 + monthSetting.lastMonthLastWeekDays + monthSetting.days
       + monthSetting.nextMonthFirstWeekDays + Object.keys(ShiftType).length + 1;
-    this.colLength = employees.length + 1;
-    this.dayOffTable = this._initialDayOffTable(employees, this.monthSetting, this.rowLength, this.colLength);
-    this.origDayOffTable = this._initialDayOffTable(employees, this.monthSetting, this.rowLength, this.colLength);
+    this.colLength = employeeModels.length + 1;
+    this.dayOffTable = this._initialDayOffTable();
+    this.origDayOffTable = this._initialDayOffTable();
   }
 
-  _initialDayOffTable(employees, monthSetting, rowLength, colLength) {
+  _initialDayOffTable() {
+    const {
+      monthSetting, rowLength, colLength, employeeModels,
+    } = this;
     const dayOffTable = Array.from(
       Array(colLength),
       () => Array(rowLength).fill(''),
@@ -23,7 +26,7 @@ export default class ShiftPlan {
       dayOffTable[colLength - 1][row] = 0;
     }
 
-    employees.forEach((emp) => {
+    employeeModels.forEach((emp) => {
       dayOffTable[emp.index][0] = emp.name;
       emp.planDayOffDates.forEach((date) => {
         this._setEmpoyeeShift(emp.index, date, ShiftType.DayOff);
@@ -33,25 +36,65 @@ export default class ShiftPlan {
     return dayOffTable;
   }
 
+  addEmployeeModel = (employeeModel) => {
+    const {
+      origDayOffTable, rowLength, employeeModels,
+    } = this;
+    employeeModels.push(employeeModel);
+    this.refreshEmployModelsIndex();
+    if (this.origDayOffTable.length === 1) {
+      this.origDayOffTable = this._initialDayOffTable();
+    } else {
+      this.origDayOffTable = [
+        ...origDayOffTable.slice(0, origDayOffTable.length - 1),
+        Array(rowLength).fill(''),
+        ...origDayOffTable.slice(origDayOffTable.length - 1),
+      ];
+      origDayOffTable[this.origDayOffTable.length - 2][0] = employeeModel.name;
+    }
+    employeeModel.planDayOffDates.forEach((date) => {
+      this._setEmpoyeeShift(employeeModel.index, date, ShiftType.DayOff);
+    });
+  }
+
+  editEmployeeModel = (employeeModel) => {
+    const editedEmp = this.employeeModels.find((emp) => emp.uniqueId === employeeModel.uniqueId);
+    editedEmp.name = employeeModel.name;
+    this.refreshEmployModelsIndex();
+    this.origDayOffTable[editedEmp.index][0] = employeeModel.name;
+  }
+
+  deleteEmployeeModel = (employeeModelUniqueId) => {
+    const empIndex = this.employeeModels.find((emp) => emp.uniqueId === employeeModelUniqueId).index;
+    this.employeeModels = this.employeeModels.filter((emp) => emp.uniqueId !== employeeModelUniqueId);
+    this.origDayOffTable = this.origDayOffTable.filter((row, index) => index !== empIndex);
+    this.refreshEmployModelsIndex();
+  }
+
+  refreshEmployModelsIndex() {
+    this.employeeModels = this.employeeModels.map((emp, index) => ({ ...emp, index }));
+    this.colLength = this.employeeModels.length + 1;
+  }
+
   _dateToRowIndex(date) {
     return date + this.monthSetting.lastMonthLastWeekDays;
   }
 
   start() {
-    this._preAddDayOff(this.dayOffTable, this.monthSetting, this.employees);
-    this._planAllDayOff(this.dayOffTable, this.monthSetting, this.employees);
+    this._preAddDayOff(this.dayOffTable, this.monthSetting, this.employeeModels);
+    this._planAllDayOff(this.dayOffTable, this.monthSetting, this.employeeModels);
   }
 
-  _preAddDayOff(dayOffTable, monthSetting, employees) {
+  _preAddDayOff(dayOffTable, monthSetting, employeeModels) {
     const beginDateOfWeekOfMonth = monthSetting.beginDay === 1 ? 1 : 1 + (7 - monthSetting.beginDay + 1);
     const endDateOfMonth = monthSetting.days + monthSetting.nextMonthFirstWeekDays;
     for (let beginDateOfWeek = beginDateOfWeekOfMonth; beginDateOfWeek <= endDateOfMonth; beginDateOfWeek += 7) {
-      this._preAddDayOffForWeek(dayOffTable, monthSetting, employees, beginDateOfWeek);
+      this._preAddDayOffForWeek(dayOffTable, monthSetting, employeeModels, beginDateOfWeek);
     }
   }
 
-  _preAddDayOffForWeek(dayOffTable, monthSetting, employees, beginDateOfWeek) {
-    employees.forEach((emp) => {
+  _preAddDayOffForWeek(dayOffTable, monthSetting, employeeModels, beginDateOfWeek) {
+    employeeModels.forEach((emp) => {
       let count = 0;
       for (let day = 0; day < 3; day += 1) {
         if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count += 1;
@@ -71,12 +114,12 @@ export default class ShiftPlan {
     });
   }
 
-  _planAllDayOff(dayOffTable, monthSetting, employees) {
+  _planAllDayOff(dayOffTable, monthSetting, employeeModels) {
     const planJobQueue = [];
     const firstDateOfThisMonth = monthSetting.beginDay === 1 ? 1 : 1 + (7 - monthSetting.beginDay + 1);
     const endOfPlanDate = monthSetting.days + monthSetting.nextMonthFirstWeekDays;
     for (let firstDateOfWeek = firstDateOfThisMonth; firstDateOfWeek <= endOfPlanDate; firstDateOfWeek += 7) {
-      const ftEmpNeedToPlan = employees
+      const ftEmpNeedToPlan = employeeModels
         .filter((emp) => emp.role === Role.FT
           && !this._isThisWeekDayOffCountGreaterEqualThan2(dayOffTable, emp.index, firstDateOfWeek));
 
@@ -86,7 +129,7 @@ export default class ShiftPlan {
         this._processPlanJob(dayOffTable, monthSetting, planJobQueue.pop());
       }
 
-      const ptEmpNeedToPlan = employees
+      const ptEmpNeedToPlan = employeeModels
         .filter((emp) => emp.role === Role.PT
           && !this._isThisWeekDayOffCountGreaterEqualThan2(dayOffTable, emp.index, firstDateOfWeek));
 
@@ -96,11 +139,11 @@ export default class ShiftPlan {
         this._processPlanJob(dayOffTable, monthSetting, planJobQueue.pop());
       }
 
-      this._preAddDayOffForWeek(dayOffTable, monthSetting, employees, firstDateOfWeek);
+      this._preAddDayOffForWeek(dayOffTable, monthSetting, employeeModels, firstDateOfWeek);
 
       this._processPlanJob(
         dayOffTable, monthSetting,
-        { empIndex: employees.find((emp) => emp.role === Role.MG).index, firstDateOfThisWeek: firstDateOfWeek },
+        { empIndex: employeeModels.find((emp) => emp.role === Role.MG).index, firstDateOfThisWeek: firstDateOfWeek },
       );
     }
   }

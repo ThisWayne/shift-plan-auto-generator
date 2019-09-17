@@ -5,7 +5,9 @@ import './plan-day-off-table.scss';
 
 export default class PlanDayOffTable extends PureComponent {
   render() {
-    const { monthData, employeeModels } = this.props;
+    const {
+      monthData, employeeModels, dayOffTable, dayOffTableCellClick,
+    } = this.props;
     if (!monthData) return null;
     const rowLength = 1 + monthData.lastMonthLastWeekDays + monthData.days
       + monthData.nextMonthFirstWeekDays + 1; // first +1 for name column, last +1 for role column
@@ -14,16 +16,24 @@ export default class PlanDayOffTable extends PureComponent {
     thisMonth.setMonth(monthData.dateObj.getMonth() - 1);
     const lastMonthText = thisMonth.toLocaleString('default', { month: 'long' });
 
-    const bodyRows = employeeModels.map((emp) => {
+    const bodyRows = employeeModels.map((emp, rowIndex) => {
       const emptyCells = [];
       for (let col = 1; col <= rowLength - 2; col += 1) {
-        emptyCells.push(<td key={col} />);
+        emptyCells.push(
+          <td key={col} className="buttonCell">
+            <button type="button" onClick={() => { dayOffTableCellClick(rowIndex, col); }}>
+              {dayOffTable[rowIndex][col]}
+            </button>
+          </td>,
+        );
       }
       return (
-        <tr key={emp.index}>
-          <td>{emp.name}</td>
+        <tr key={emp.uniqueId}>
+          <td key="name">{emp.name}</td>
           {emptyCells}
-          <td>{emp.role}</td>
+          <td key="role">
+            {emp.role}
+          </td>
         </tr>
       );
     });
