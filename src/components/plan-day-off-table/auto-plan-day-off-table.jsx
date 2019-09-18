@@ -20,7 +20,7 @@ export default class AutoPlanDayOffTable extends PureComponent {
       const shiftCells = [];
       for (let col = 1; col <= rowLength - 2; col += 1) {
         shiftCells.push(
-          <td key={col}>
+          <td key={col} className="table-data">
             {autoDayOffTable[rowIndex][col]}
           </td>,
         );
