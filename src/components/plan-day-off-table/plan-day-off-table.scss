@@ -25,6 +25,9 @@ table.roster-table {
       background-color: transparent;
     }
   }
+  td.orig-day-off {
+    background-color: lightgray;
+  }
   .date-row, .day-row {
     >th {
       font-weight: bold;

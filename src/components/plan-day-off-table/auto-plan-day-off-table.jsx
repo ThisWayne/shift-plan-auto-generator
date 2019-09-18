@@ -2,11 +2,12 @@ import React, { PureComponent } from 'react';
 import DateRow from './date-row';
 import DayRow from './day-row';
 import './auto-plan-day-off-table.scss';
+import { ShiftType } from '../../shift-plan';
 
 export default class AutoPlanDayOffTable extends PureComponent {
   render() {
     const {
-      monthData, employeeModels, autoDayOffTable,
+      monthData, employeeModels, origDayOffTable, autoDayOffTable,
     } = this.props;
     if (!autoDayOffTable) return null;
     const rowLength = 1 + monthData.lastMonthLastWeekDays + monthData.days
@@ -19,11 +20,19 @@ export default class AutoPlanDayOffTable extends PureComponent {
     const bodyRows = employeeModels.map((emp, rowIndex) => {
       const shiftCells = [];
       for (let col = 1; col <= rowLength - 2; col += 1) {
-        shiftCells.push(
-          <td key={col} className="table-data">
-            {autoDayOffTable[rowIndex][col]}
-          </td>,
-        );
+        if (origDayOffTable[rowIndex][col] === ShiftType.DayOff) {
+          shiftCells.push(
+            <td key={col} className="table-data orig-day-off">
+              {autoDayOffTable[rowIndex][col]}
+            </td>,
+          );
+        } else {
+          shiftCells.push(
+            <td key={col} className="table-data">
+              {autoDayOffTable[rowIndex][col]}
+            </td>,
+          );
+        }
       }
       return (
         <tr key={emp.uniqueId}>

@@ -2,6 +2,7 @@ import React from 'react';
 import DateRow from './date-row';
 import DayRow from './day-row';
 import './plan-day-off-table.scss';
+import { ShiftType } from '../../shift-plan';
 
 export default function PlanDayOffTable(props) {
   const {
@@ -17,8 +18,9 @@ export default function PlanDayOffTable(props) {
   const bodyRows = employeeModels.map((emp, rowIndex) => {
     const clickableCells = [];
     for (let col = 1; col <= rowLength - 2; col += 1) {
+      const className = dayOffTable[rowIndex][col] === ShiftType.DayOff ? 'buttonCell orig-day-off' : 'buttonCell';
       clickableCells.push(
-        <td key={col} className="buttonCell">
+        <td key={col} className={className}>
           <button type="button" onClick={() => { dayOffTableCellClick(rowIndex, col); }}>
             {dayOffTable[rowIndex][col]}
           </button>

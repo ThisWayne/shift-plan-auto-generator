@@ -150,7 +150,7 @@ export default class App extends React.Component {
           <h2 className="step-header">3. 自動排休</h2>
           <div className="step-body">
             <AutoPlanDayOffTable {...{
-              monthData, employeeModels, autoDayOffTable: shiftPlan.autoDayOffTable,
+              monthData, employeeModels, origDayOffTable: shiftPlan.origDayOffTable, autoDayOffTable: shiftPlan.autoDayOffTable,
             }}
             />
           </div>
