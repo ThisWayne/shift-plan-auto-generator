@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import {
   Day, ShiftType, Role, MaxShiftSeq,
 } from './constants';
@@ -5,75 +6,90 @@ import {
 export default class ShiftPlan {
   constructor(monthSetting, employeeModels) {
     Object.assign(this, { monthSetting, employeeModels });
-    this.rowLength = 1 + monthSetting.lastMonthLastWeekDays + monthSetting.days
+    this.cols = 1 + monthSetting.lastMonthLastWeekDays + monthSetting.days
       + monthSetting.nextMonthFirstWeekDays + Object.keys(ShiftType).length + 1;
-    this.colLength = employeeModels.length + 1;
-    this.dayOffTable = this._initialDayOffTable();
+    this.rows = employeeModels.length + 1;
+    this.dayOffCells = [];
     this.origDayOffTable = this._initialDayOffTable();
   }
 
   _initialDayOffTable() {
     const {
-      monthSetting, rowLength, colLength, employeeModels,
+      monthSetting, cols, rows, employeeModels, dayOffCells,
     } = this;
     const dayOffTable = Array.from(
-      Array(colLength),
-      () => Array(rowLength).fill(''),
+      Array(rows),
+      () => Array(cols).fill(''),
     );
 
-    const rows = monthSetting.lastMonthLastWeekDays + monthSetting.days + monthSetting.nextMonthFirstWeekDays;
-    for (let row = 1; row <= rows; row += 1) {
-      dayOffTable[colLength - 1][row] = 0;
+    const daysCols = monthSetting.lastMonthLastWeekDays + monthSetting.days + monthSetting.nextMonthFirstWeekDays;
+    for (let col = 1; col <= daysCols; col += 1) {
+      dayOffTable[rows - 1][col] = 0;
     }
 
     employeeModels.forEach((emp) => {
       dayOffTable[emp.index][0] = emp.name;
-      emp.planDayOffDates.forEach((date) => {
-        this._setEmpoyeeShift(emp.index, date, ShiftType.DayOff);
-      });
+    });
+
+    dayOffCells.forEach((dayOffCell) => {
+      dayOffTable[dayOffCell.rowIndex][dayOffCell.colIndex] = ShiftType.DayOff;
     });
 
     return dayOffTable;
   }
 
-  addEmployeeModel = (employeeModel) => {
+  addEmployeeModel(employeeModel) {
     const {
-      origDayOffTable, rowLength, employeeModels,
+      origDayOffTable, cols, employeeModels,
     } = this;
     employeeModels.push(employeeModel);
-    this.refreshEmployModelsIndex();
+    this._refreshEmployModelsIndex();
     if (this.origDayOffTable.length === 1) {
       this.origDayOffTable = this._initialDayOffTable();
     } else {
       this.origDayOffTable = [
         ...origDayOffTable.slice(0, origDayOffTable.length - 1),
-        Array(rowLength).fill(''),
+        Array(cols).fill(''),
         ...origDayOffTable.slice(origDayOffTable.length - 1),
       ];
       origDayOffTable[this.origDayOffTable.length - 2][0] = employeeModel.name;
     }
-    employeeModel.planDayOffDates.forEach((date) => {
-      this._setEmpoyeeShift(employeeModel.index, date, ShiftType.DayOff);
-    });
   }
 
-  editEmployeeModel = (employeeModel) => {
+  editEmployeeModel(employeeModel) {
     const editedEmp = this.employeeModels.find((emp) => emp.uniqueId === employeeModel.uniqueId);
     editedEmp.name = employeeModel.name;
-    this.refreshEmployModelsIndex();
+    this._refreshEmployModelsIndex();
     this.origDayOffTable[editedEmp.index][0] = employeeModel.name;
   }
 
-  deleteEmployeeModel = (employeeModelUniqueId) => {
+  deleteEmployeeModel(employeeModelUniqueId) {
     const empIndex = this.employeeModels.find((emp) => emp.uniqueId === employeeModelUniqueId).index;
     this.employeeModels = this.employeeModels.filter((emp) => emp.uniqueId !== employeeModelUniqueId);
     this.origDayOffTable = this.origDayOffTable.filter((row, index) => index !== empIndex);
-    this.refreshEmployModelsIndex();
+    this._refreshEmployModelsIndex();
   }
 
-  refreshEmployModelsIndex() {
+  flipDayOffCell(dayOffCell) {
+    const { rowIndex, colIndex } = dayOffCell;
+    if (this.origDayOffTable[rowIndex][colIndex] === ShiftType.DayOff) {
+      this.origDayOffTable[rowIndex][colIndex] = '';
+      this.dayOffCells = this.dayOffCells.filter((cell) => cell.rowIndex !== rowIndex && cell.colIndex !== colIndex);
+    } else {
+      this.origDayOffTable[rowIndex][colIndex] = ShiftType.DayOff;
+      this.dayOffCells.push(dayOffCell);
+    }
+  }
+
+  removeDayOffCell(dayOffCell) {
+    this.dayOffCell = this.dayOffCell.filter(
+      (cell) => cell.rowIndex === dayOffCell.rowIndex && cell.colIndex === dayOffCell.colIndex,
+    );
+  }
+
+  _refreshEmployModelsIndex() {
     this.employeeModels = this.employeeModels.map((emp, index) => ({ ...emp, index }));
-    this.colLength = this.employeeModels.length + 1;
+    this.rows = this.employeeModels.length + 1;
   }
 
   _dateToRowIndex(date) {
@@ -81,8 +97,9 @@ export default class ShiftPlan {
   }
 
   start() {
-    this._preAddDayOff(this.dayOffTable, this.monthSetting, this.employeeModels);
-    this._planAllDayOff(this.dayOffTable, this.monthSetting, this.employeeModels);
+    this.autoDayOffTable = this._initialDayOffTable();
+    this._preAddDayOff(this.autoDayOffTable, this.monthSetting, this.employeeModels);
+    this._planAllDayOff(this.autoDayOffTable, this.monthSetting, this.employeeModels);
   }
 
   _preAddDayOff(dayOffTable, monthSetting, employeeModels) {
@@ -102,14 +119,14 @@ export default class ShiftPlan {
       if (count >= 2
         && beginDateOfWeek + 7 <= 1 + monthSetting.lastMonthLastWeekDays
         + monthSetting.days + monthSetting.nextMonthFirstWeekDays) {
-        this._setEmpoyeeShift(emp.index, beginDateOfWeek + 7, ShiftType.DayOff);
+        this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek + 7, ShiftType.DayOff);
       }
       count = 0;
       for (let day = 4; day < 7; day += 1) {
         if (dayOffTable[emp.index][this._dateToRowIndex(beginDateOfWeek + day)] === ShiftType.DayOff) count += 1;
       }
       if (count >= 2 && beginDateOfWeek - 1 > 0) {
-        this._setEmpoyeeShift(emp.index, beginDateOfWeek - 1, ShiftType.DayOff);
+        this._setEmpoyeeShift(dayOffTable, emp.index, beginDateOfWeek - 1, ShiftType.DayOff);
       }
     });
   }
@@ -180,8 +197,8 @@ export default class ShiftPlan {
   _processPlanJob(dayOffTable, monthSetting, planJob) {
     if (planJob.empIndex === 0) {
       for (let date = planJob.firstDateOfThisWeek; date < planJob.firstDateOfThisWeek + 7; date += 1) {
-        if (dayOffTable[this.colLength - 1][this._dateToRowIndex(date)] < 2) {
-          this._setEmpoyeeShift(planJob.empIndex, date, ShiftType.DayOff);
+        if (dayOffTable[this.rows - 1][this._dateToRowIndex(date)] < 2) {
+          this._setEmpoyeeShift(dayOffTable, planJob.empIndex, date, ShiftType.DayOff);
         }
       }
     } else {
@@ -211,7 +228,7 @@ export default class ShiftPlan {
         candidateDates = [firstDateOfThisWeek, firstDateOfThisWeek + 1];
       }
       const dayOffDate = this._getLeastDayOffCountDate(dayOffTable, candidateDates, secCandidateDates);
-      this._setEmpoyeeShift(empIndex, dayOffDate, ShiftType.DayOff);
+      this._setEmpoyeeShift(dayOffTable, empIndex, dayOffDate, ShiftType.DayOff);
 
       this._signTheOtherDayOffThisWeekWhenThisWeekIsSignOneDayOffAlready(
         dayOffTable, firstDateOfThisWeek, this._getThisWeekShifts(empIndex, firstDateOfThisWeek), empIndex,
@@ -220,7 +237,7 @@ export default class ShiftPlan {
   }
 
   _getThisWeekShifts(empIndex, firstDateOfThisWeek) {
-    return this.dayOffTable[empIndex].slice(
+    return this.autoDayOffTable[empIndex].slice(
       this._dateToRowIndex(firstDateOfThisWeek), this._dateToRowIndex(firstDateOfThisWeek + 7),
     );
   }
@@ -345,9 +362,9 @@ export default class ShiftPlan {
         }
       }
       dayOffDate = this._getLeastDayOffCountDate(dayOffTable, candidateDates, secCandidateDates);
-      console.assert(dayOffTable[this.colLength - 1][this._dateToRowIndex(dayOffDate)] <= 1);
+      console.assert(dayOffTable[this.rows - 1][this._dateToRowIndex(dayOffDate)] <= 1);
     }
-    this._setEmpoyeeShift(empIndex, dayOffDate, ShiftType.DayOff);
+    this._setEmpoyeeShift(dayOffTable, empIndex, dayOffDate, ShiftType.DayOff);
   }
 
   _getThisWeekDayOffCount(dayOffTable, empIndex, firstDateOfThisWeek) {
@@ -357,60 +374,59 @@ export default class ShiftPlan {
   }
 
   _isNextWeekDayOffCountGreaterThan2(empIndex, firstDateOfThisWeek) {
-    return this.dayOffTable[empIndex].slice(
+    return this.autoDayOffTable[empIndex].slice(
       firstDateOfThisWeek + 7, firstDateOfThisWeek + 14,
     ).filter((shift) => shift === ShiftType.DayOff).length >= 2;
   }
 
   _getNextWeekFirstDayOffDate(empIndex, firstDateOfThisWeek) {
-    return this.dayOffTable[empIndex].slice(
+    return this.autoDayOffTable[empIndex].slice(
       this._dateToRowIndex(firstDateOfThisWeek + 7), this._dateToRowIndex(firstDateOfThisWeek + 14),
     ).find((shift) => shift === ShiftType.DayOff);
   }
 
   _getLastWeekLastDayOffDate(empIndex, firstDateOfThisWeek) {
     return firstDateOfThisWeek - 1
-      - this.dayOffTable[empIndex].slice(
+      - this.autoDayOffTable[empIndex].slice(
         this._dateToRowIndex(firstDateOfThisWeek - 7), this._dateToRowIndex(firstDateOfThisWeek),
       ).reverse().indexOf(ShiftType.DayOff);
   }
 
-  _setEmpoyeeShift(empIndex, date, shiftType) {
-    const { dayOffTable } = this;
+  _setEmpoyeeShift(dayOffTable, empIndex, date, shiftType) {
     const row = this._dateToRowIndex(date);
     if (dayOffTable[empIndex][row] === shiftType) return;
 
     if (dayOffTable[empIndex][row] !== ShiftType.DayOff && shiftType === ShiftType.DayOff) {
-      dayOffTable[this.colLength - 1][row] += 1;
+      dayOffTable[this.rows - 1][row] += 1;
     } else if (dayOffTable[empIndex][row] === ShiftType.DayOff && shiftType !== ShiftType.DayOff) {
-      dayOffTable[this.colLength - 1][row] -= 1;
+      dayOffTable[this.rows - 1][row] -= 1;
     }
-    console.assert(dayOffTable[this.colLength - 1][row] <= 2);
+    console.assert(dayOffTable[this.rows - 1][row] <= 2);
     dayOffTable[empIndex][row] = shiftType;
   }
 
   _getLeastDayOffCountDate(dayOffTable, candidateDates, secCandidateDates) {
     if (candidateDates
       && candidateDates.length === 1
-      && dayOffTable[this.colLength - 1][this._dateToRowIndex(candidateDates[0]) < 2]) return candidateDates[0];
+      && dayOffTable[this.rows - 1][this._dateToRowIndex(candidateDates[0]) < 2]) return candidateDates[0];
 
     let minCount = Number.MAX_VALUE;
     let result = [];
     candidateDates.forEach((date) => {
-      if (dayOffTable[this.colLength - 1][this._dateToRowIndex(date)] < minCount) {
+      if (dayOffTable[this.rows - 1][this._dateToRowIndex(date)] < minCount) {
         result = [date];
-        minCount = dayOffTable[this.colLength - 1][this._dateToRowIndex(date)];
-      } else if (dayOffTable[this.colLength - 1][this._dateToRowIndex(date)] === minCount) {
+        minCount = dayOffTable[this.rows - 1][this._dateToRowIndex(date)];
+      } else if (dayOffTable[this.rows - 1][this._dateToRowIndex(date)] === minCount) {
         result.push(date);
       }
     });
 
     if (minCount >= 2) {
       secCandidateDates.forEach((date) => {
-        if (dayOffTable[this.colLength - 1][this._dateToRowIndex(date)] < minCount) {
+        if (dayOffTable[this.rows - 1][this._dateToRowIndex(date)] < minCount) {
           result = [date];
-          minCount = dayOffTable[this.colLength - 1][this._dateToRowIndex(date)];
-        } else if (dayOffTable[this.colLength - 1][this._dateToRowIndex(date)] === minCount) {
+          minCount = dayOffTable[this.rows - 1][this._dateToRowIndex(date)];
+        } else if (dayOffTable[this.rows - 1][this._dateToRowIndex(date)] === minCount) {
           result.push(date);
         }
       });
@@ -421,23 +437,23 @@ export default class ShiftPlan {
 
   printRoster(headerName, footerName) {
     const docFrag = new DocumentFragment();
-    this._populateRosterTableHeader(docFrag, this.monthSetting, this.rowLength, headerName);
+    this._populateRosterTableHeader(docFrag, this.monthSetting, this.cols, headerName);
     this._populateRosterTableBody(docFrag, this.dayOffTable);
     this._populateRosterTableFoot(docFrag, footerName);
     document.querySelector('#roster').appendChild(docFrag);
   }
 
-  _populateRosterTableHeader(docFrag, monthData, rowLength, headerName) {
+  _populateRosterTableHeader(docFrag, monthData, cols, headerName) {
     const thead = document.createElement('thead');
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.innerText = headerName;
-    td.colSpan = rowLength;
+    td.colSpan = cols;
     tr.appendChild(td);
     thead.appendChild(tr);
     this._populateRosterTableHeaderDate(thead);
     this._populateRosterTableHeaderDay(thead);
-    docFrag.appendChild(thead, this.rowLength);
+    docFrag.appendChild(thead, this.cols);
   }
 
   _populateRosterTableHeaderDate(thead) {
@@ -504,10 +520,10 @@ export default class ShiftPlan {
       row.forEach((cell, rowIndex) => {
         const td = document.createElement('td');
         if (rowIndex !== 0
-          && rowIndex < this.rowLength - Object.keys(ShiftType).length - 1
-          && colIndex === this.colLength - 1 && cell !== 2) td.className = 'error';
+          && rowIndex < this.cols - Object.keys(ShiftType).length - 1
+          && colIndex === this.rows - 1 && cell !== 2) td.className = 'error';
         if (rowIndex > 0
-          && colIndex < this.colLength - 1
+          && colIndex < this.rows - 1
           && this.origDayOffTable[colIndex][rowIndex] === ShiftType.DayOff) td.className = 'orig-day-off';
         td.innerText = cell;
         tr.appendChild(td);
@@ -518,12 +534,12 @@ export default class ShiftPlan {
   }
 
   _populateRosterTableFoot(docFrag, footerName) {
-    const { rowLength } = this;
+    const { cols } = this;
     const tfoot = document.createElement('tfoot');
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.innerText = footerName;
-    td.colSpan = rowLength;
+    td.colSpan = cols;
     tr.appendChild(td);
     tfoot.appendChild(tr);
     docFrag.appendChild(tfoot);
