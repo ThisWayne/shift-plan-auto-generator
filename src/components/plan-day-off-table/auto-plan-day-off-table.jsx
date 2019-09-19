@@ -1,20 +1,20 @@
 import React, { PureComponent } from 'react';
 import DateRow from './date-row';
 import DayRow from './day-row';
-import './auto-plan-day-off-table.scss';
+import './day-off-table.scss';
 import { ShiftType } from '../../shift-plan';
 
 export default class AutoPlanDayOffTable extends PureComponent {
   render() {
     const {
-      monthData, employeeModels, origDayOffTable, autoDayOffTable,
+      monthModel, employeeModels, origDayOffTable, autoDayOffTable,
     } = this.props;
     if (!autoDayOffTable) return null;
-    const rowLength = 1 + monthData.lastMonthLastWeekDays + monthData.days
-      + monthData.nextMonthFirstWeekDays + 1; // first +1 for name column, last +1 for role column
-    const thisMonthText = monthData.dateObj.toLocaleString('default', { month: 'long' });
-    const thisMonth = new Date(monthData.dateObj);
-    thisMonth.setMonth(monthData.dateObj.getMonth() - 1);
+    const rowLength = 1 + monthModel.lastMonthLastWeekDays + monthModel.days
+      + monthModel.nextMonthFirstWeekDays + 1; // first +1 for name column, last +1 for role column
+    const thisMonthText = monthModel.dateObj.toLocaleString('default', { month: 'long' });
+    const thisMonth = new Date(monthModel.dateObj);
+    thisMonth.setMonth(monthModel.dateObj.getMonth() - 1);
     const lastMonthText = thisMonth.toLocaleString('default', { month: 'long' });
 
     const bodyRows = employeeModels.map((emp, rowIndex) => {
@@ -48,11 +48,19 @@ export default class AutoPlanDayOffTable extends PureComponent {
     const countRow = [];
     countRow.push(<td key="pre padding" />);
     for (let col = 1; col <= rowLength - 2; col += 1) {
-      countRow.push(
-        <td key={col}>
-          {autoDayOffTable[employeeModels.length][col]}
-        </td>,
-      );
+      if (autoDayOffTable[employeeModels.length][col] > 2) {
+        countRow.push(
+          <td key={col} className="error">
+            {autoDayOffTable[employeeModels.length][col]}
+          </td>,
+        );
+      } else {
+        countRow.push(
+          <td key={col}>
+            {autoDayOffTable[employeeModels.length][col]}
+          </td>,
+        );
+      }
     }
     bodyRows.push(
       <tr key={new Date().getTime()}>
@@ -67,8 +75,8 @@ export default class AutoPlanDayOffTable extends PureComponent {
               {`${thisMonthText}排休`}
             </th>
           </tr>
-          <DateRow {...{ monthData }} />
-          <DayRow {...{ monthData }} />
+          <DateRow {...{ monthData: monthModel }} />
+          <DayRow {...{ monthData: monthModel }} />
         </thead>
         <tbody>{bodyRows}</tbody>
         <tfoot>

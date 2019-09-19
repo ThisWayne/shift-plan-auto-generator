@@ -1,6 +1,6 @@
 import { Day, ShiftType } from './constants';
 
-export default class MonthData {
+export default class MonthModel {
   constructor({ year, month, holidayOffDates = [] }) {
     this.dateObj = new Date(year, month);
     this.beginDay = this.dateObj.getDay();

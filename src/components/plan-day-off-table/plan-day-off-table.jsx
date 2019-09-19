@@ -1,18 +1,18 @@
 import React from 'react';
 import DateRow from './date-row';
 import DayRow from './day-row';
-import './plan-day-off-table.scss';
+import './day-off-table.scss';
 import { ShiftType } from '../../shift-plan';
 
 export default function PlanDayOffTable(props) {
   const {
-    monthData, employeeModels, dayOffTable, dayOffTableCellClick,
+    monthModel, employeeModels, dayOffTable, dayOffTableCellClick,
   } = props;
-  const rowLength = 1 + monthData.lastMonthLastWeekDays + monthData.days
-    + monthData.nextMonthFirstWeekDays + 1; // first +1 for name column, last +1 for role column
-  const thisMonthText = monthData.dateObj.toLocaleString('default', { month: 'long' });
-  const thisMonth = new Date(monthData.dateObj);
-  thisMonth.setMonth(monthData.dateObj.getMonth() - 1);
+  const rowLength = 1 + monthModel.lastMonthLastWeekDays + monthModel.days
+    + monthModel.nextMonthFirstWeekDays + 1; // first +1 for name column, last +1 for role column
+  const thisMonthText = monthModel.dateObj.toLocaleString('default', { month: 'long' });
+  const thisMonth = new Date(monthModel.dateObj);
+  thisMonth.setMonth(monthModel.dateObj.getMonth() - 1);
   const lastMonthText = thisMonth.toLocaleString('default', { month: 'long' });
 
   const bodyRows = employeeModels.map((emp, rowIndex) => {
@@ -45,8 +45,8 @@ export default function PlanDayOffTable(props) {
             {`${thisMonthText}排休`}
           </th>
         </tr>
-        <DateRow {...{ monthData }} />
-        <DayRow {...{ monthData }} />
+        <DateRow {...{ monthData: monthModel }} />
+        <DayRow {...{ monthData: monthModel }} />
       </thead>
       <tbody>{bodyRows}</tbody>
       <tfoot>

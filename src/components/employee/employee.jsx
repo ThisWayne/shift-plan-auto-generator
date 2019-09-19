@@ -4,16 +4,16 @@ import './employee.scss';
 export default class Employee extends PureComponent {
   render() {
     const {
-      employeeModels, roleOptions, handleAddEmployeeBtnClick, handleEmpDataChange, handleEmpDataDelete,
+      employeeModels, roleOptions, handleAddEmployeeBtnClick, handleEmployeeChange, handleDeleteEmployeeBtnClick,
     } = this.props;
     const roleSelectOptions = roleOptions.map((role) => <option key={role}>{role}</option>);
     const empList = employeeModels.map((emp) => (
       <div className="employee-flex-item" key={emp.uniqueId}>
-        <input value={emp.name} name="name" data-unique-id={emp.uniqueId} onChange={handleEmpDataChange} />
-        <select value={emp.role} name="role" data-unique-id={emp.uniqueId} onChange={handleEmpDataChange}>
+        <input value={emp.name} name="name" data-unique-id={emp.uniqueId} onChange={handleEmployeeChange} />
+        <select value={emp.role} name="role" data-unique-id={emp.uniqueId} onChange={handleEmployeeChange}>
           {roleSelectOptions}
         </select>
-        <button type="button" data-unique-id={emp.uniqueId} onClick={handleEmpDataDelete}>刪除</button>
+        <button type="button" data-unique-id={emp.uniqueId} onClick={handleDeleteEmployeeBtnClick}>刪除</button>
       </div>
     ));
 
