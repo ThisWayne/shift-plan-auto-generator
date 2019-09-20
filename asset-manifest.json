@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ThisWayne/shift-plan-auto-generator/static/css/main.c2bad016.chunk.css",
+    "main.js": "/ThisWayne/shift-plan-auto-generator/static/js/main.c6b05612.chunk.js",
+    "main.js.map": "/ThisWayne/shift-plan-auto-generator/static/js/main.c6b05612.chunk.js.map",
+    "runtime~main.js": "/ThisWayne/shift-plan-auto-generator/static/js/runtime~main.e4d8b7c3.js",
+    "runtime~main.js.map": "/ThisWayne/shift-plan-auto-generator/static/js/runtime~main.e4d8b7c3.js.map",
+    "static/js/2.614eb4a8.chunk.js": "/ThisWayne/shift-plan-auto-generator/static/js/2.614eb4a8.chunk.js",
+    "static/js/2.614eb4a8.chunk.js.map": "/ThisWayne/shift-plan-auto-generator/static/js/2.614eb4a8.chunk.js.map",
+    "index.html": "/ThisWayne/shift-plan-auto-generator/index.html",
+    "precache-manifest.334d64caf723eaa1c27e80dd7756642b.js": "/ThisWayne/shift-plan-auto-generator/precache-manifest.334d64caf723eaa1c27e80dd7756642b.js",
+    "service-worker.js": "/ThisWayne/shift-plan-auto-generator/service-worker.js",
+    "static/css/main.c2bad016.chunk.css.map": "/ThisWayne/shift-plan-auto-generator/static/css/main.c2bad016.chunk.css.map"
+  }
+}
